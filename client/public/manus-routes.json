@@ -1,0 +1,11 @@
+{
+  "routes": [
+    { "path": "/", "title": "IntellMeet Workspace" },
+    { "path": "/login", "title": "Sign in" },
+    { "path": "/register", "title": "Create account" },
+    { "path": "/demo", "title": "Live demo" },
+    { "path": "/profile", "title": "Your profile" },
+    { "path": "/support", "title": "Support center" },
+    { "path": "/call/:roomId", "title": "Meeting room" }
+  ]
+}

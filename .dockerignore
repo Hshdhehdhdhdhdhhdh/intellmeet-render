@@ -1,0 +1,14 @@
+.git
+node_modules
+**/node_modules
+dist
+build
+coverage
+.env
+.env.*
+**/.env
+**/.env.*
+*.log
+.manus-logs
+.webdev
+.project-config.json

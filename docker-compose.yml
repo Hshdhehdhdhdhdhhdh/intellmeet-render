@@ -1,0 +1,23 @@
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: intellmeet-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: intellmeet
+      MYSQL_USER: intellmeet
+      MYSQL_PASSWORD: intellmeet
+      MYSQL_ROOT_PASSWORD: intellmeet-root
+    ports:
+      - "3306:3306"
+    volumes:
+      - intellmeet-mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "intellmeet", "-pintellmeet"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+volumes:
+  intellmeet-mysql-data:
+

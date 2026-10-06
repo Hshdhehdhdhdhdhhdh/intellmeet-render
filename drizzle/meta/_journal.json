@@ -1,0 +1,62 @@
+{
+  "version": "7",
+  "dialect": "mysql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1789982946603,
+      "tag": "0000_lucky_shinobi_shaw",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1790253692703,
+      "tag": "0001_hard_freak",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1790609116538,
+      "tag": "0002_add_meetings",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1790609860220,
+      "tag": "0003_meetings_owner_index",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1790692373268,
+      "tag": "0004_add_copilot_files",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1790693413121,
+      "tag": "0005_meeting_intelligence_support",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1790793860168,
+      "tag": "0006_meeting_invitations",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "5",
+      "when": 1790864361358,
+      "tag": "0007_meeting_lifecycle",
+      "breakpoints": true
+    }
+  ]
+}

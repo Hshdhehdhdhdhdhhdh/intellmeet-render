@@ -1,0 +1,1 @@
+CREATE INDEX `meetings_owner_scheduled_at_idx` ON `meetings` (`ownerOpenId`,`scheduledAt`);

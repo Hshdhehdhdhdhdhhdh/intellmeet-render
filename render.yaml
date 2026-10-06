@@ -1,0 +1,15 @@
+# Render Blueprint: one web service runs BOTH the backend (API + WebSocket signalling) and the built frontend.
+services:
+  - type: web
+    name: intellmeet
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free            # change to "starter" for an always-on server (recommended for real meetings)
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: JWT_SECRET
+        generateValue: true
+      - key: DATABASE_URL
+        sync: false       # you paste your MySQL connection string when Render asks
