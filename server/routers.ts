@@ -26,6 +26,19 @@ const MODEL_FILE_TYPES = new Set([
   "video/mp4",
 ]);
 
+async function extractPdfText(data: Buffer): Promise<string | null> {
+  try {
+    const { extractText, getDocumentProxy } = await import("unpdf");
+    const pdf = await getDocumentProxy(new Uint8Array(data));
+    const { text } = await extractText(pdf, { mergePages: true });
+    const clean = (Array.isArray(text) ? text.join("\n") : text).replace(/\0/g, "").trim();
+    return clean ? clean.slice(0, 24_000) : null;
+  } catch (error) {
+    console.error("[Copilot] PDF text extraction failed", error);
+    return null;
+  }
+}
+
 function isTextFile(name: string, type: string) {
   return type.startsWith("text/") || TEXT_FILE_PATTERN.test(name);
 }
@@ -347,9 +360,12 @@ export const appRouter = router({
             mimeType,
           );
           const uploadId = randomUUID();
+          const isPdf = mimeType === "application/pdf" || /\.pdf$/i.test(input.name);
           const extractedText = isTextFile(input.name, mimeType)
             ? data.toString("utf8").replace(/\0/g, "").slice(0, 24_000)
-            : null;
+            : isPdf
+              ? await extractPdfText(data)
+              : null;
           await db.createCopilotFile({
             publicId: uploadId,
             ownerOpenId: ctx.user?.openId || null,
