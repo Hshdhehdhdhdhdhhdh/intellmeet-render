@@ -1,4 +1,7 @@
 # IntellMeet — AI Meeting Workspace
+**Live Deployment:** https://intellmeet-cqap.onrender.com
+
+**Backup (Manus):** https://intellmeet2-mnkjmg3p.manus.space
 
 IntellMeet is a React + TypeScript meeting workspace with a Node/Express and tRPC backend. The dashboard includes meeting, workspace, task, calendar, and analytics demo interactions. Email/password registration and login are implemented against MySQL/TiDB with bcrypt password hashing and signed HTTP-only JWT session cookies.
 
