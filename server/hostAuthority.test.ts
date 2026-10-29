@@ -3,7 +3,7 @@ import type { AddressInfo } from "net";
 import { io as connect, type Socket } from "socket.io-client";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createHostToken, verifyHostToken } from "./hostToken";
-import { registerSignaling } from "./signaling";
+import { registerCreatorHostKey, registerSignaling } from "./signaling";
 
 let http: HttpServer;
 let url = "";
@@ -128,6 +128,15 @@ describe("single host per meeting", () => {
     await wait(200);
     const pc2 = client();
     expect(await join(pc2, { roomId: room, name: "PC", participantId: "owner-pc-0001", hostToken: createHostToken(room), hostKey: "device-key-pc-aaaaaaaaaaaa" })).toBe("host");
+  });
+
+  it("the device that created the meeting is the host even if another device of the owner opens the link first", async () => {
+    const room = "meeting--106";
+    registerCreatorHostKey(room, "creator-key-pc-cccccccccc");
+    const phone = client();
+    expect(await join(phone, { roomId: room, name: "Phone", participantId: "owner-phone-02", hostToken: createHostToken(room), hostKey: "device-key-phone-dddddddd" })).toBe("guest");
+    const pc = client();
+    expect(await join(pc, { roomId: room, name: "PC", participantId: "owner-pc-0002", hostToken: createHostToken(room), hostKey: "creator-key-pc-cccccccccc" })).toBe("host");
   });
 
   it("unsaved rooms: first browser with a host key is host, later visitors are guests, the host key owner reconnects as host", async () => {

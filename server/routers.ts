@@ -11,6 +11,7 @@ import { sdk } from "./_core/sdk";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, router } from "./_core/trpc";
 import { createHostToken } from "./hostToken";
+import { registerCreatorHostKey } from "./signaling";
 import { invokeLLM, type Message, type MessageContent } from "./_core/llm";
 import { storageGetSignedUrl, storagePut } from "./storage";
 import { COPILOT_SYSTEM_PROMPT, normalizeCopilotResult, type CopilotAttachment } from "./copilot";
@@ -253,6 +254,8 @@ export const appRouter = router({
         description: z.string().trim().max(2000).optional(),
         scheduledAt: z.string().datetime(),
         durationMinutes: z.number().int().min(15).max(240),
+        /** Private key of the device that creates the meeting; that device becomes the only host. */
+        hostKey: z.string().regex(/^[a-zA-Z0-9_-]{16,96}$/).optional(),
       }))
       .mutation(async ({ ctx, input }) => {
         if (!ctx.user) {
@@ -271,6 +274,7 @@ export const appRouter = router({
             scheduledAt,
             durationMinutes: input.durationMinutes,
           });
+          if (input.hostKey) registerCreatorHostKey(`meeting--${meeting.id}`, input.hostKey);
           return {
             id: meeting.id,
             title: meeting.title,

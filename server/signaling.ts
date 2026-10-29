@@ -17,6 +17,17 @@ const roomHosts = new Map<string, string>();
  * use a signed host token (only the meeting owner can get one) instead.
  */
 const roomHostKeys = new Map<string, string>();
+/** Device key of whoever CREATED a saved meeting. That device is always the host, whichever device opens the link first. */
+const creatorHostKeys = new Map<string, string>();
+
+export function registerCreatorHostKey(roomId: string, key: string) {
+  if (!/^[a-zA-Z0-9_-]{16,96}$/.test(key)) return;
+  if (creatorHostKeys.size > 5000) {
+    const oldest = creatorHostKeys.keys().next().value;
+    if (oldest !== undefined) creatorHostKeys.delete(oldest);
+  }
+  creatorHostKeys.set(roomId, key);
+}
 const roomKeyExpiry = new Map<string, ReturnType<typeof setTimeout>>();
 
 /** Public demo rooms and saved account meeting rooms use separate formats. */
@@ -258,7 +269,7 @@ export function registerSignaling(httpServer: HttpServer) {
         // host role (its private per-device key is remembered); the owner's other devices join as normal
         // guests and are admitted by the host. Clients without a key keep the old behaviour.
         if (mayHost && hostKey) {
-          const claimedKey = roomHostKeys.get(roomId);
+          const claimedKey = creatorHostKeys.get(roomId) ?? roomHostKeys.get(roomId);
           if (!claimedKey) roomHostKeys.set(roomId, hostKey);
           else mayHost = claimedKey === hostKey;
         }

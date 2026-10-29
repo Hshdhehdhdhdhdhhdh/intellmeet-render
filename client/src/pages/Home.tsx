@@ -297,10 +297,13 @@ export default function Home() {
     };
 
     if (auth.user) {
+      // Private key of THIS device: whoever creates the meeting is its only host.
+      const hostKey = `hk-${(globalThis.crypto?.randomUUID?.() ?? `${Date.now()}${Math.random().toString(36).slice(2)}${Math.random().toString(36).slice(2)}`).replace(/[^a-zA-Z0-9_-]/g, "")}`.slice(0, 90).padEnd(20, "x");
       createMeetingMutation.mutate(
-        { title, description: newDescription.trim() || undefined, scheduledAt: scheduledAt.toISOString(), durationMinutes },
+        { title, description: newDescription.trim() || undefined, scheduledAt: scheduledAt.toISOString(), durationMinutes, hostKey },
         {
           onSuccess: (record) => {
+            try { localStorage.setItem(`intellmeet-host-key:meeting--${record.id}`, hostKey); } catch { /* host key stays in memory only */ }
             finishCreation(meetingFromRecord(record));
             if (queuedInvites.length) {
               const queued = [...queuedInvites];
