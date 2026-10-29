@@ -1,5 +1,6 @@
 import { trpc } from "@/lib/trpc";
-import { CheckCircle2, FileAudio, Lightbulb, ListChecks, Sparkles, Upload, WandSparkles } from "lucide-react";
+import { exportSummary, type ExportFormat } from "@/lib/exportSummary";
+import { CheckCircle2, Download, FileAudio, Lightbulb, ListChecks, Sparkles, Upload, WandSparkles } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
@@ -116,6 +117,20 @@ export default function MeetingIntelligence({ meetingId, title, seedTranscript =
     }
   };
 
+  const hasExport = Boolean(summary.trim() || decisions.length || actionItems.length || transcript.trim());
+  const download = (format: ExportFormat) => {
+    if (!hasExport) {
+      toast.error("Generate insights first, then download.");
+      return;
+    }
+    try {
+      exportSummary(format, { title, language, summary, decisions, actionItems, transcript });
+      toast.success(`Downloaded as ${format.toUpperCase()}.`);
+    } catch {
+      toast.error("The download could not be created. Please try again.");
+    }
+  };
+
   const busy = transcribe.isPending || analyze.isPending || saved.isLoading;
 
   return (
@@ -129,6 +144,12 @@ export default function MeetingIntelligence({ meetingId, title, seedTranscript =
         <button type="button" className="secondary-button" onClick={() => fileInput.current?.click()} disabled={busy}><Upload size={13} /> Upload recording</button>
         <button type="button" className="primary-button" onClick={generateInsight} disabled={busy}><WandSparkles size={13} /> {analyze.isPending ? "Generating…" : "Generate insights"}</button>
         <input ref={fileInput} className="file-input-hidden" type="file" accept=".webm,.mp3,.wav,.ogg,.m4a,audio/*,video/webm" onChange={(event) => { const file = event.target.files?.[0]; if (file) void transcribeFile(file); event.target.value = ""; }} />
+      </div>
+      <div className="intelligence-actions" aria-label="Download summary">
+        <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 12 }}><Download size={13} /> Download:</span>
+        {(["docx", "odt", "pdf", "csv", "txt"] as ExportFormat[]).map((f) => (
+          <button type="button" key={f} className="secondary-button" onClick={() => download(f)} disabled={!hasExport} title={f === "docx" ? "Word document" : f === "txt" ? "Plain text" : f.toUpperCase()}>{f === "docx" ? "Word (DOCX)" : f.toUpperCase()}</button>
+        ))}
       </div>
       <div className="summary-tabs">
         {(["Summary", "Transcript", "Decisions", "Action items"] as Tab[]).map((item) => (

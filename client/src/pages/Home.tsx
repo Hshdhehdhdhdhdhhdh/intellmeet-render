@@ -1,3 +1,4 @@
+import { exportSummary, type ExportFormat } from "@/lib/exportSummary";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import {
   Activity,
@@ -561,6 +562,12 @@ export default function Home() {
                 <div key={`${item.role}-${index}`} className={`copilot-bubble ${item.role}`}>{item.text}</div>
               ))}
               {copilotAsk.isPending && <div className="copilot-bubble assistant" role="status">Copilot is thinking…</div>}
+            </div>
+            <div className="copilot-actions" aria-label="Download conversation">
+              <span style={{ fontSize: 12, alignSelf: "center" }}>Download chat:</span>
+              {(["docx", "odt", "pdf", "csv", "txt"] as ExportFormat[]).map((f) => (
+                <button type="button" key={f} onClick={() => exportSummary(f, { kind: "chat", title: "IntellMeet Copilot conversation", summary: "", decisions: [], actionItems: [], transcript: copilotMessages.map((m) => `${m.role === "user" ? "You" : "Copilot"}: ${m.text.replace(/\n+/g, " ")}`).join("\n") })}>{f === "docx" ? "Word (DOCX)" : f.toUpperCase()}</button>
+              ))}
             </div>
             <div className="copilot-actions">
               <button type="button" onClick={() => askCopilot("Open my meetings")}>Open meetings</button>
