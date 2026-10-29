@@ -57,6 +57,8 @@ type LiveCallProps = {
   displayName: string;
   onRecordingReady?: (file: File) => void;
   onTranscript?: (text: string) => void;
+  /** Lets the page show the real room chat outside the call UI. */
+  onChatBridge?: (bridge: { messages: ChatMessage[]; send: (text: string) => void; live: boolean }) => void;
 };
 
 const DEFAULT_STATE: MediaState = { mic: true, cam: true, screen: false, hand: false };
@@ -201,7 +203,7 @@ function hostKeyFor(room: string) {
 }
 
 /* ------------------------------------------------------------- component */
-export default function LiveCall({ roomId, displayName, onRecordingReady, onTranscript }: LiveCallProps) {
+export default function LiveCall({ roomId, displayName, onRecordingReady, onTranscript, onChatBridge }: LiveCallProps) {
   /* host authority: saved meetings use a server-signed owner token, other rooms use a private per-browser key */
   const trpcUtils = trpc.useUtils();
   const hostTokenRef = useRef("");
@@ -1041,6 +1043,17 @@ export default function LiveCall({ roomId, displayName, onRecordingReady, onTran
     window.setTimeout(() => setLinkCopied(false), 1800);
     notify.success("Meeting link copied — send it to anyone you want to invite.");
   };
+
+  useEffect(() => {
+    onChatBridge?.({
+      messages,
+      live: phase === "live",
+      send: (text: string) => {
+        const message = text.trim();
+        if (message) socketRef.current?.emit("chat", { roomId, message });
+      },
+    });
+  }, [messages, phase, roomId, onChatBridge]);
 
   const sendChat = () => {
     const message = draft.trim();

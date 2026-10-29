@@ -4062,3 +4062,9 @@ textarea:focus-visible {
   .call-page:has(.live-meeting) .live-meeting .meeting-room-layout { min-height: auto; }
   .call-page:has(.live-meeting) .live-meeting .meeting-stage-column { min-height: auto; }
 }
+
+/* Meeting AI + room chat stay reachable while the full-screen call is open */
+.extras-fab { position: fixed; top: 14px; right: 14px; z-index: 89; display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 999px; border: 1px solid rgba(94, 234, 212, 0.45); background: #0f766e; color: #fff; font-size: 12px; font-weight: 600; cursor: pointer; box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35); }
+.drawer-extras.floating { position: fixed; top: 0; right: 0; bottom: 0; z-index: 90; width: min(480px, 100vw); overflow-y: auto; padding: 16px; background: #0b1220; border-left: 1px solid rgba(255, 255, 255, 0.12); box-shadow: -12px 0 32px rgba(0, 0, 0, 0.45); }
+.drawer-extras.floating .extras-close { margin-bottom: 12px; }
+.drawer-extras:not(.floating) .extras-close { display: none; }
