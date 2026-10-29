@@ -115,6 +115,21 @@ describe("single host per meeting", () => {
     expect((await demoted).role).toBe("guest");
   });
 
+  it("owner signed in on two devices: the first device stays host, the second joins as a guest who must be admitted", async () => {
+    const room = "meeting--105";
+    const pc = client();
+    expect(await join(pc, { roomId: room, name: "PC", participantId: "owner-pc-0001", hostToken: createHostToken(room), hostKey: "device-key-pc-aaaaaaaaaaaa" })).toBe("host");
+    const phone = client();
+    const request = nextEvent<{ name: string }>(pc, "admission-request");
+    expect(await join(phone, { roomId: room, name: "Phone", participantId: "owner-phone-01", hostToken: createHostToken(room), hostKey: "device-key-phone-bbbbbbbbb" })).toBe("guest");
+    expect((await request).name).toBe("Phone");
+    // the host device reconnecting still gets the host role back
+    pc.disconnect();
+    await wait(200);
+    const pc2 = client();
+    expect(await join(pc2, { roomId: room, name: "PC", participantId: "owner-pc-0001", hostToken: createHostToken(room), hostKey: "device-key-pc-aaaaaaaaaaaa" })).toBe("host");
+  });
+
   it("unsaved rooms: first browser with a host key is host, later visitors are guests, the host key owner reconnects as host", async () => {
     const room = "meeting-demo-room";
     const hostKey = "host-key-aaaaaaaaaaaaaaaa";

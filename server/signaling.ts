@@ -254,6 +254,14 @@ export function registerSignaling(httpServer: HttpServer) {
       if (kind === "account") {
         // Saved meeting: only the signed-in owner holds a valid host token.
         mayHost = verifyHostToken(roomId, payload?.hostToken);
+        // The owner may be signed in on several devices. Only the FIRST device to open the room claims the
+        // host role (its private per-device key is remembered); the owner's other devices join as normal
+        // guests and are admitted by the host. Clients without a key keep the old behaviour.
+        if (mayHost && hostKey) {
+          const claimedKey = roomHostKeys.get(roomId);
+          if (!claimedKey) roomHostKeys.set(roomId, hostKey);
+          else mayHost = claimedKey === hostKey;
+        }
       } else if (hostKey) {
         const storedKey = roomHostKeys.get(roomId);
         if (!storedKey) {
