@@ -14,11 +14,13 @@ type Props = {
   liveTranscript?: string;
   incomingFile?: File | null;
   onAddTasks?: (items: IntelligenceActionItem[]) => void;
+  /** Called whenever the summary / decisions / actions / transcript change, so the meeting Copilot can use them. */
+  onContextChange?: (text: string) => void;
 };
 
 type Tab = "Summary" | "Transcript" | "Decisions" | "Action items";
 
-export default function MeetingIntelligence({ meetingId, title, seedTranscript = "", liveTranscript = "", incomingFile, onAddTasks }: Props) {
+export default function MeetingIntelligence({ meetingId, title, seedTranscript = "", liveTranscript = "", incomingFile, onAddTasks, onContextChange }: Props) {
   const fileInput = useRef<HTMLInputElement>(null);
   const lastIncomingFile = useRef<File | null>(null);
   const [tab, setTab] = useState<Tab>("Summary");
@@ -60,6 +62,16 @@ export default function MeetingIntelligence({ meetingId, title, seedTranscript =
     setDecisions(saved.data.decisions);
     setActionItems(saved.data.actionItems);
   }, [saved.data]);
+
+  useEffect(() => {
+    if (!onContextChange) return;
+    const parts: string[] = [];
+    if (summary.trim()) parts.push(`Meeting summary: ${summary.trim().slice(0, 900)}`);
+    if (decisions.length) parts.push(`Decisions: ${decisions.join("; ").slice(0, 600)}`);
+    if (actionItems.length) parts.push(`Action items: ${actionItems.map((a) => `${a.task} (owner ${a.owner}, due ${a.due})`).join("; ").slice(0, 700)}`);
+    if (transcript.trim()) parts.push(`Transcript: ${transcript.trim().slice(0, 1200)}`);
+    onContextChange(parts.join("\n"));
+  }, [summary, decisions, actionItems, transcript, onContextChange]);
 
   const transcribeFile = async (file: File) => {
     if (file.size > 15 * 1024 * 1024) {
