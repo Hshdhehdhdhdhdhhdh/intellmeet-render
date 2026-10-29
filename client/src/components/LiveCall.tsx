@@ -1,5 +1,6 @@
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
+  Bot,
   Captions,
   Check,
   CircleDot,
@@ -58,6 +59,8 @@ type LiveCallProps = {
   onRecordingReady?: (file: File) => void;
   onTranscript?: (text: string) => void;
   /** Lets the page show the real room chat outside the call UI. */
+  /** Opens the page's AI meeting intelligence / copilot / room chat panel. */
+  onOpenAi?: () => void;
   onChatBridge?: (bridge: { messages: ChatMessage[]; send: (text: string) => void; live: boolean }) => void;
 };
 
@@ -203,7 +206,7 @@ function hostKeyFor(room: string) {
 }
 
 /* ------------------------------------------------------------- component */
-export default function LiveCall({ roomId, displayName, onRecordingReady, onTranscript, onChatBridge }: LiveCallProps) {
+export default function LiveCall({ roomId, displayName, onRecordingReady, onTranscript, onChatBridge, onOpenAi }: LiveCallProps) {
   /* host authority: saved meetings use a server-signed owner token, other rooms use a private per-browser key */
   const trpcUtils = trpc.useUtils();
   const hostTokenRef = useRef("");
@@ -1564,6 +1567,11 @@ export default function LiveCall({ roomId, displayName, onRecordingReady, onTran
           <button className={`imr-ctl${panel === "people" ? " active" : ""}`} onClick={() => openPanel("people")} aria-label="People" title="People">
             <Users size={20} />{role === "host" && pending.length > 0 && <i className="imr-badge">{pending.length}</i>}<span>People</span>
           </button>
+          {onOpenAi && (
+            <button className="imr-ctl" onClick={onOpenAi} aria-label="AI summary, copilot and room chat" title="AI summary, copilot and room chat">
+              <Bot size={20} /><span>AI</span>
+            </button>
+          )}
           <div className="imr-pop-wrap">
             <button className="imr-ctl" onClick={() => { setMenuOpen(o => !o); setReactOpen(false); }} aria-label="More options" title="More">
               <MoreVertical size={20} /><span>More</span>
